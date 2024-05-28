@@ -45,11 +45,11 @@ async def process_verification(message: types.Message, state: FSMContext):
         logger.info(f"User {message.from_user.id} requested phone number verification")
     else:
         # Инициализация Yandex Captcha
-        # captcha = YandexCaptcha(YANDEX_CAPTCHA_KEY)
+        captcha = YandexCaptcha(YANDEX_CAPTCHA_KEY)
         # Отправка запроса на получение капчи
-        # captcha_id = captcha.create()
+        captcha_id = captcha.create()
         # Отправка капчи пользователю
-        # await bot.send_photo(message.chat.id, captcha.get_image(captcha_id))
+        await bot.send_photo(message.chat.id, captcha.get_image(captcha_id))
         # Ожидание ответа пользователя
         await UserState.next()
         logger.info(f"User {message.from_user.id} initiated verification process")
@@ -60,11 +60,11 @@ async def process_phone_number(message: types.Message, state: FSMContext):
     # Проверка номера телефона
     if message.contact.phone_number:
         # Инициализация Yandex Captcha
-        # captcha = YandexCaptcha(YANDEX_CAPTCHA_KEY)
+        captcha = YandexCaptcha(YANDEX_CAPTCHA_KEY)
         # Отправка запроса на получение капчи
-        # captcha_id = captcha.create()
+        captcha_id = captcha.create()
         # Отправка капчи пользователю
-        # await bot.send_photo(message.chat.id, captcha.get_image(captcha_id))
+        await bot.send_photo(message.chat.id, captcha.get_image(captcha_id))
         # Ожидание ответа пользователя
         await UserState.next()
         logger.info(f"User {message.from_user.id} provided a phone number")
@@ -73,14 +73,14 @@ async def process_phone_number(message: types.Message, state: FSMContext):
 @dp.message_handler(state=UserState.waiting_for_verification)
 async def process_captcha_answer(message: types.Message, state: FSMContext):
     # Инициализация Yandex Captcha
-    # captcha = YandexCaptcha(YANDEX_CAPTCHA_KEY)
+    captcha = YandexCaptcha(YANDEX_CAPTCHA_KEY)
     # Проверка ответа пользователя
-    # if captcha.check(message.text):
+    if captcha.check(message.text):
         await bot.send_message(message.chat.id, 'Верификация пройдена, можете писать в чат')
         # Переход в основное состояние бота
         await state.finish()
         logger.info(f"User {message.from_user.id} successfully verified")
-    # else:
+    else:
         await bot.send_message(message.chat.id, 'Неверный ответ на капчу, попробуйте еще раз')
         logger.warning(f"User {message.from_user.id} failed verification")
 
